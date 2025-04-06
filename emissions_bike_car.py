@@ -118,7 +118,7 @@ for i, bar in enumerate(bars):
 
 # Chart title + extras
 title_note = f"(car: {passengers} passenger{'s' if passengers > 1 else ''})" if vehicle_type in ["Small Car", "Electric Car"] else ""
-ax.set_title(f"🚦 Emissions by Transport Mode {title_note} ({distance_km:.1f} km per {label_suffix})")
+ax.set_title(f"Carbon Emissions by Transport Mode {title_note} ({distance_km:.1f} km per {label_suffix})")
 ax.set_xlim(0, max(emissions) * 1.25)
 ax.set_xlabel(f"kg CO₂ per {label_suffix}")
 ax.grid(axis='x', linestyle='--', alpha=0.4)
@@ -143,7 +143,7 @@ This tool estimates carbon emissions from various transport modes by calculating
 | **Small Car**            | 0.44 kg CO₂/km (IPCC 2021, EURO 3) |
 | **Electric Car**         | 0.24 kg CO₂/km (IPCC 2021) |
 | **Bus (per passenger)**  | 0.12 kg CO₂/km (UK DEFRA average) |
-| **Local Electric Train** | 0.00935 kg CO₂/km (EU average rail) |
+| **Local Electric Train** | 0.009 kg CO₂/km (EU average rail) |
 | **Walking**              | 80 kcal/km × diet emissions |
 | **Biking (standard)**    | 50 kcal/km × diet + 0.02 embodied |
 | **E-Bike**               | 20 kcal/km × diet + 0.05 embodied |
@@ -155,5 +155,4 @@ This tool estimates carbon emissions from various transport modes by calculating
 - European Cyclists' Federation LCA of bicycles
 - [Nature Scientific Reports (2020)](https://www.nature.com/articles/s41598-020-66170-y)
 - GREET Model – Argonne National Lab
-- EcoInvent / OpenLCA LCA databases
 """)
