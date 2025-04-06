@@ -21,7 +21,7 @@ vehicle_type = st.selectbox("Choose your mode of transport:", [
 
 # Optional: passengers for cars
 if vehicle_type in ["Small Car", "Electric Car"]:
-    passengers = st.slider("👥 How many people are sharing the car?", min_value=1, max_value=6, value=1)
+    passengers = st.slider("How many people are sharing the car?", min_value=1, max_value=6, value=1)
 else:
     passengers = 1
 
