@@ -5,7 +5,7 @@ import folium
 from streamlit_folium import st_folium
 
 # --- API Setup ---
-ORS_API_KEY = "5b3ce3597851110001cf6248f69660151a7e457f857d5c2000b6f4f8"  # Replace with your real key
+ORS_API_KEY = "my_key"  # Replace with your real key
 client = openrouteservice.Client(key=ORS_API_KEY)
 geolocator = Nominatim(user_agent="travel-emissions-app")
 
