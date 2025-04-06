@@ -15,12 +15,13 @@ vehicle_type = st.selectbox("Choose your mode of transport:", [
     "E-Bike",
     "Small Car",
     "Electric Car",
-    "Bus (per passenger)"
+    "Bus (per passenger)",
+    "Local Electric Train"  # ✅ NEW
 ])
 
 # Optional: passengers for cars
 if vehicle_type in ["Small Car", "Electric Car"]:
-    passengers = st.slider("How many people are sharing the car?", min_value=1, max_value=6, value=1)
+    passengers = st.slider("👥 How many people are sharing the car?", min_value=1, max_value=6, value=1)
 else:
     passengers = 1
 
@@ -42,15 +43,16 @@ KCAL_PER_KM = {
     "E-Bike": 20
 }
 
-# --- Embodied / direct emissions (static parts) ---
+# --- Embodied/direct emissions (static components) ---
 embodied_emissions = {
     "Walking (including food fuel)": 0.0,
     "Standard Bike": 0.02,
     "Lightweight Bike": 0.016,
-    "E-Bike": 0.05,  # Includes frame + battery
+    "E-Bike": 0.05,  # Frame + battery
     "Small Car": 0.44,
     "Electric Car": 0.24,
-    "Bus (per passenger)": 0.12
+    "Bus (per passenger)": 0.12,
+    "Local Electric Train": 0.00935  # ✅ NEW
 }
 
 # --- Build full emissions based on diet and transport ---
@@ -65,7 +67,7 @@ emission_factor = base_factor / passengers
 total_emissions = emission_factor * distance_km * multiplier
 
 # --- Output: Summary ---
-st.markdown(f"### 🔎 Estimated Emissions: **{total_emissions:.2f} kg CO₂**")
+st.markdown(f"### Estimated Emissions: **{total_emissions:.2f} kg CO₂**")
 st.caption(f"{vehicle_type} emits **{emission_factor:.3f} kg CO₂/km per person**")
 
 if passengers > 1 and vehicle_type in ["Small Car", "Electric Car"]:
@@ -104,19 +106,54 @@ bars = ax.barh(modes, emissions, color=colors)
 for i, bar in enumerate(bars):
     width = bar.get_width()
     saved = savings[i]
-    ax.text(width + max(emissions) * 0.01, bar.get_y() + bar.get_height()/2, f"{width:.1f} kg", va='center', fontsize=9)
+    label = f"{width:.1f} kg"
     if saved > 0.1:
-        ax.text(max(emissions) * 0.01, bar.get_y() + bar.get_height()/2, f"↓ {saved:.1f} kg saved", va='center', fontsize=8, color="black")
+        label += f" ({saved:.1f} kg reduction)"
+    ax.text(width + max(emissions) * 0.01,
+            bar.get_y() + bar.get_height() / 2,
+            label,
+            va='center',
+            fontsize=9,
+            color="black")
 
 # Chart title + extras
 title_note = f"(car: {passengers} passenger{'s' if passengers > 1 else ''})" if vehicle_type in ["Small Car", "Electric Car"] else ""
-ax.set_title(f"Emissions by Transport Mode {title_note} ({distance_km:.1f} km per {label_suffix})")
+ax.set_title(f"🚦 Emissions by Transport Mode {title_note} ({distance_km:.1f} km per {label_suffix})")
 ax.set_xlim(0, max(emissions) * 1.25)
 ax.set_xlabel(f"kg CO₂ per {label_suffix}")
 ax.grid(axis='x', linestyle='--', alpha=0.4)
 plt.tight_layout()
 st.pyplot(fig)
 
-# --- Footer ---
-st.markdown("---")
-st.caption("Emissions include estimated food energy for human-powered transport and grid electricity for e-bikes. Values are based on per-km assumptions and averaged life cycle emissions.")
+# --- Methodology & Sources ---
+st.markdown("## Methodology & Sources")
+st.markdown("""
+This tool estimates carbon emissions from various transport modes by calculating:
+
+- `Embodied Emissions`: CO₂ released from manufacturing vehicles, bikes, batteries, etc., spread over average lifetime distance.
+- `Operational Emissions`: Tailpipe emissions, electricity use (e-bikes, electric cars), or food energy (walking, biking).
+- `Food-based Emissions`: Calculated from estimated calories burned per km and diet-based CO₂ per kcal:
+    - **Average Western Diet**: 2.5 kg CO₂ per 1000 kcal  
+    - **Low-Carbon / Plant-Based Diet**: 1.2 kg CO₂ per 1000 kcal  
+
+### Key Emissions Factors
+
+| Mode                     | Emissions Basis |
+|--------------------------|-----------------|
+| **Small Car**            | 0.44 kg CO₂/km (IPCC 2021, EURO 3) |
+| **Electric Car**         | 0.24 kg CO₂/km (IPCC 2021) |
+| **Bus (per passenger)**  | 0.12 kg CO₂/km (UK DEFRA average) |
+| **Local Electric Train** | 0.00935 kg CO₂/km (EU average rail) |
+| **Walking**              | 80 kcal/km × diet emissions |
+| **Biking (standard)**    | 50 kcal/km × diet + 0.02 embodied |
+| **E-Bike**               | 20 kcal/km × diet + 0.05 embodied |
+
+### Sources
+
+- IPCC Sixth Assessment Report (2021)
+- UK Government GHG Conversion Factors (DEFRA)
+- European Cyclists' Federation LCA of bicycles
+- [Nature Scientific Reports (2020)](https://www.nature.com/articles/s41598-020-66170-y)
+- GREET Model – Argonne National Lab
+- EcoInvent / OpenLCA LCA databases
+""")
